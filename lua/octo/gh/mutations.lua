@@ -931,6 +931,29 @@ mutation {
 }
 ]]
 
+-- https://docs.github.com/en/graphql/reference/mutations#removereviewrequests
+-- for teams use `teamIds`
+M.remove_review_requests = [[
+mutation($pullRequestId: ID!, $userIds: [ID!]) {
+  removeRequestedReviewers(input: {pullRequestId: $pullRequestId, userIds: $userIds}) {
+    pullRequest {
+      id
+      reviewRequests(first: 100) {
+        nodes {
+          requestedReviewer {
+            ... on User {
+              login
+              isViewer
+            }
+            ... on Team { name }
+          }
+        }
+      }
+    }
+  }
+}
+]]
+
 -- https://docs.github.com/en/graphql/reference/mutations#createpullrequest
 M.create_pr = [[
 mutation {
