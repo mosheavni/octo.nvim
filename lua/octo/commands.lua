@@ -2231,7 +2231,6 @@ function M.add_user(subject, login)
 end
 
 function M.remove_user(subject, login)
-  print "in here"
   local buffer = utils.get_current_buffer()
   if not buffer then
     utils.error "No Octo buffer"
@@ -2248,7 +2247,7 @@ function M.remove_user(subject, login)
     if subject == "assignee" then
       query = graphql("remove_assignees_mutation", iid, user_id)
     elseif subject == "reviewer" then
-      query = graphql("dismiss_reviews_mutation", iid, user_id)
+      query = graphql("remove_review_requests", iid, user_id)
     else
       utils.error "Invalid user type"
       return
