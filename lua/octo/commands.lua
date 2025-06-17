@@ -773,12 +773,15 @@ function M.setup()
         M.add_user("assignee", login)
       end,
       remove = function(login)
-        M.remove_assignee(login)
+        M.remove_user("assignee", login)
       end,
     },
     reviewer = {
       add = function(login)
         M.add_user("reviewer", login)
+      end,
+      remove = function(login)
+        M.remove_user("reviewer", login)
       end,
     },
     reaction = {
@@ -2227,9 +2230,11 @@ function M.add_user(subject, login)
   end
 end
 
-function M.remove_assignee(login)
+function M.remove_user(subject, login)
+  print "in here"
   local buffer = utils.get_current_buffer()
   if not buffer then
+    utils.error "No Octo buffer"
     return
   end
 
@@ -2239,7 +2244,15 @@ function M.remove_assignee(login)
   end
 
   local function cb(user_id)
-    local query = graphql("remove_assignees_mutation", iid, user_id)
+    local query
+    if subject == "assignee" then
+      query = graphql("remove_assignees_mutation", iid, user_id)
+    elseif subject == "reviewer" then
+      query = graphql("dismiss_reviews_mutation", iid, user_id)
+    else
+      utils.error "Invalid user type"
+      return
+    end
     gh.run {
       args = { "api", "graphql", "--paginate", "-f", string.format("query=%s", query) },
       cb = function(output, stderr)
